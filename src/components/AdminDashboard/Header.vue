@@ -5,7 +5,7 @@
             <i v-if="!collapse" class="el-icon-s-fold"></i>
             <i v-else class="el-icon-s-unfold"></i>
         </div>
-        <div class="logo">后台管理系统</div>
+        <div class="logo">{{ title }}</div>
         <div class="header-right">
             <div class="header-user-con">
                 <!-- 全屏显示 -->
@@ -29,7 +29,7 @@
                 </div>
                 <!-- 用户头像 -->
                 <div class="user-avator">
-                    <img src="../../assets/img.jpg" />
+                    <img src="../../assets/img/img.jpg" />
                 </div>
                 <!-- 用户名下拉菜单 -->
                 <el-dropdown class="user-name" trigger="click" @command="handleCommand">
@@ -58,6 +58,12 @@ export default {
             name: 'linxin',
             message: 2
         };
+    },
+    props: {
+        title: {
+            required: true,
+            type: String
+        }
     },
     computed: {
         username() {
@@ -115,6 +121,7 @@ export default {
 </script>
 <style scoped>
 .header {
+    background-color: #242f42;
     position: relative;
     box-sizing: border-box;
     width: 100%;
@@ -129,6 +136,7 @@ export default {
     line-height: 70px;
 }
 .header .logo {
+    text-align: left;
     float: left;
     width: 250px;
     line-height: 70px;

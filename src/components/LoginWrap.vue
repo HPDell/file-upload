@@ -22,7 +22,7 @@
 
 <script>
 // 引入initGeetest
-require('../assets/gt');
+require('../assets/js/gt');
 
 export default {
     data() {

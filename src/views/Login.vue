@@ -11,9 +11,6 @@
 </template>
 
 <script>
-// 引入initGeetest
-require('../assets/gt');
-
 // 登录组件
 import LoginWrap from '../components/LoginWrap';
 // 注册组件
@@ -32,10 +29,6 @@ export default {
 </script>
 
 <style>
-html, body, div {
-    margin: 0;
-    padding: 0;
-}
 .login-main {
     background-color: rgb(50, 52, 59);
     height: 800px;

@@ -7,7 +7,7 @@ const router = new Router({
   routes: [
     {
       path: '*',
-      redirect: '/login'
+      redirect: '/admin'
     },
     {
       path: '/login',
@@ -22,19 +22,36 @@ const router = new Router({
     {
       path: '/admin',
       name: 'Admin Dashboard',
-      component: () => import('./views/AdminDashboard.vue')
-    }
+      component: () => import('./views/AdminDashboard.vue'),
+      children: [
+        {
+          path: '/ad-main',
+          name: 'Admin Dashboard Main Page',
+          component: () => import('./views/AD_main.vue')
+        },
+        {
+          path: '/ad-stats',
+          name: 'Admin Dashboard Statistic',
+          component: () => import('./views/AD_stats.vue')
+        },
+        {
+          path: '/ad-user',
+          name: 'Admin Dashboard User Manager',
+          component: () => import('./views/AD_user.vue')
+        }
+      ]
+    },
   ]
 })
 
 // 钩子函数进行权限跳转
-router.beforeEach( (to, from, next) => {
-  const role = sessionStorage.getItem('permission');
-  if (!role && to.path !== '/login') {
-    next('/login');
-  } else {
-    next();
-  }
-})
+// router.beforeEach( (to, from, next) => {
+//   const role = sessionStorage.getItem('permission');
+//   if (!role && to.path !== '/login') {
+//     next('/login');
+//   } else {
+//     next();
+//   }
+// })
 
 export default router;

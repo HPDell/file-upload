@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
+    <img alt="Vue logo" src="../assets/img/logo.png">
     <el-divider>上传模块</el-divider>
     <div class="upload-area">
       <el-input placeholder="请输入您的ID" v-model="userInfo.userId" style="width:250px; margin: 0 5px;"

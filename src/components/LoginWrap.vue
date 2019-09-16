@@ -75,8 +75,12 @@ export default {
                                 // 分权限浏览页面
                                 if (data.permission === 'user') {
                                     self.$router.push('/user');
+                                    localStorage.setItem('user_name', data.name);
+                                    localStorage.setItem('user_account', self.form.account);
                                 } else if (data.permission === 'admin') {
                                     self.$router.push('/admin');
+                                    localStorage.setItem('user_name', data.name);
+                                    localStorage.setItem('user_account', self.form.account);
                                 }
                             } else {
                                 self.$message({

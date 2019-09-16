@@ -112,7 +112,7 @@
 </script>
 
 
-<style>
+<style scoped>
     .tags {
         position: relative;
         height: 30px;
@@ -124,6 +124,8 @@
 
     .tags ul {
         box-sizing: border-box;
+        margin: 0;
+        padding: 0;
         width: 100%;
         height: 100%;
     }
@@ -152,7 +154,8 @@
     }
 
     .tags-li.active {
-        color: #fff;
+        border: 1px solid #409EFF;
+        background-color: #409EFF;
     }
 
     .tags-li-title {

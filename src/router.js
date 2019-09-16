@@ -20,24 +20,38 @@ const router = new Router({
       component: () => import('./views/UserDashboard.vue')
     },
     {
+      path: '/file-manager',
+      component: () => import('./views/filemanager.vue')
+    },
+    {
       path: '/admin',
       name: 'Admin Dashboard',
       component: () => import('./views/AdminDashboard.vue'),
+      redirect: '/ad-main',
       children: [
         {
           path: '/ad-main',
           name: 'Admin Dashboard Main Page',
-          component: () => import('./views/AD_main.vue')
+          component: () => import('./views/AdmMainPage.vue'),
+          meta: { title: '系统首页' }
         },
         {
           path: '/ad-stats',
           name: 'Admin Dashboard Statistic',
-          component: () => import('./views/AD_stats.vue')
+          component: () => import('./views/AdmStatsPage.vue'),
+          meta: { title: '数据统计' }
         },
         {
           path: '/ad-user',
           name: 'Admin Dashboard User Manager',
-          component: () => import('./views/AD_user.vue')
+          component: () => import('./views/AdmUserPage.vue'),
+          meta: { title: '用户管理' }
+        },
+        {
+          path: '/ad-files',
+          name: 'Admin Dashboard File Manager',
+          component: () => import('./views/AdmFilesPage.vue'),
+          meta: { title: '文件管理' }
         }
       ]
     },

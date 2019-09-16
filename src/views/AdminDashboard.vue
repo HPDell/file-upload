@@ -17,10 +17,10 @@
 </template>
 
 <script>
-import vHead from '../components/AdminDashboard/Header';
-import vSidebar from '../components/AdminDashboard/Sidebar';
-import vTags from '../components/AdminDashboard/Tags';
-import bus from '../components/bus';
+import vHead from '../components/AdmHeaderWrap';
+import vSidebar from '../components/AdmSidebarWrap';
+import vTags from '../components/AdmTagsWrap';
+import bus from '../bus';
 
 export default {
     components: {

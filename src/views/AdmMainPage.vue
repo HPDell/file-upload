@@ -7,24 +7,20 @@
                         <img src="../assets/img/img.jpg" class="user-avator" alt="">
                         <div class="user-info-cont">
                             <div class="user-info-name">{{name}}</div>
-                            <div>{{role}}</div>
+                            <div>系统管理员</div>
                         </div>
                     </div>
-                    <div class="user-info-list">上次登录时间：<span>2018-01-01</span></div>
-                    <div class="user-info-list">上次登录地点：<span>东莞</span></div>
+                    <div class="user-info-list">上次登录时间：<span>{{ lastLoginTime }}</span></div>
+                    <div class="user-info-list">上次登录地点：<span>武汉</span></div>
                 </el-card>
                 <el-card shadow="hover" style="height:252px;">
                     <div slot="header" class="clearfix">
-                        <span>语言详情</span>
+                        <span>排行榜</span>
                     </div>
-                    Vue
-                    <el-progress :percentage="71.3" color="#42b983"></el-progress>
-                    JavaScript
-                    <el-progress :percentage="24.1" color="#f1e05a"></el-progress>
-                    CSS
-                    <el-progress :percentage="3.7"></el-progress>
-                    HTML
-                    <el-progress :percentage="0.9" color="#f56c6c"></el-progress>
+                    <p style="margin:0 0 5px;" v-for="item in userRankSort" :key="item.id">
+                        {{item.name}}
+                        <el-progress text-inside :stroke-width="20" :percentage="item.score" :color="item.color"></el-progress>
+                    </p>
                 </el-card>
             </el-col>
             <el-col :span="16">
@@ -33,9 +29,9 @@
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
                             <div class="grid-content grid-con-1">
                                 <i class="el-icon-lx-people grid-con-icon"></i>
-                                <div class="grid-cont-right">
-                                    <div class="grid-num">1234</div>
-                                    <div>用户访问量</div>
+                                <div class="grid-cont-right" style="cursor:pointer;" @click="$router.push('/ad-user')">
+                                    <div class="grid-num">{{ userNumber }}</div>
+                                    <div>用户数量</div>
                                 </div>
                             </div>
                         </el-card>
@@ -46,7 +42,7 @@
                                 <i class="el-icon-lx-notice grid-con-icon"></i>
                                 <div class="grid-cont-right">
                                     <div class="grid-num">321</div>
-                                    <div>系统消息</div>
+                                    <div>已提交作品数</div>
                                 </div>
                             </div>
                         </el-card>
@@ -57,36 +53,13 @@
                                 <i class="el-icon-lx-goods grid-con-icon"></i>
                                 <div class="grid-cont-right">
                                     <div class="grid-num">5000</div>
-                                    <div>数量</div>
+                                    <div>文件数</div>
                                 </div>
                             </div>
                         </el-card>
                     </el-col>
                 </el-row>
-                <el-card shadow="hover" style="height:403px;">
-                    <div slot="header" class="clearfix">
-                        <span>待办事项</span>
-                        <el-button style="float: right; padding: 3px 0" type="text">添加</el-button>
-                    </div>
-                    <el-table :data="todoList" :show-header="false" height="304" style="width: 100%;font-size:14px;">
-                        <el-table-column width="40">
-                            <template slot-scope="scope">
-                                <el-checkbox v-model="scope.row.status"></el-checkbox>
-                            </template>
-                        </el-table-column>
-                        <el-table-column>
-                            <template slot-scope="scope">
-                                <div class="todo-item" :class="{'todo-item-del': scope.row.status}">{{scope.row.title}}</div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column width="60">
-                            <template>
-                                <i class="el-icon-edit"></i>
-                                <i class="el-icon-delete"></i>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-card>
+                <register-list style="height:403px;"></register-list>
             </el-col>
         </el-row>
         <el-row :gutter="20">
@@ -106,36 +79,13 @@
 
 <script>
     import Schart from 'vue-schart';
-    import bus from '../components/bus';
+    import bus from '../bus';
+    import RegisterList from '../components/AdmRegisterList';
     export default {
         name: 'dashboard',
         data() {
             return {
-                name: localStorage.getItem('ms_username'),
-                todoList: [{
-                        title: '今天要修复100个bug',
-                        status: false,
-                    },
-                    {
-                        title: '今天要修复100个bug',
-                        status: false,
-                    },
-                    {
-                        title: '今天要写100行代码加几个bug吧',
-                        status: false,
-                    }, {
-                        title: '今天要修复100个bug',
-                        status: false,
-                    },
-                    {
-                        title: '今天要修复100个bug',
-                        status: true,
-                    },
-                    {
-                        title: '今天要写100行代码加几个bug吧',
-                        status: true,
-                    }
-                ],
+                name: localStorage.getItem('user_name'),
                 data: [{
                         name: '2018/09/04',
                         value: 1083
@@ -165,6 +115,24 @@
                         value: 1065
                     }
                 ],
+                userRank: [
+                    {
+                        name: '林杉',
+                        id: '123',
+                        score: 76.81367,
+                    },
+                    {
+                        name: '林杉1',
+                        id: '124',
+                        score: 98.01793,
+                    },
+                    {
+                        name: '林杉2',
+                        id: '125',
+                        score: 83.54692,
+                    },
+                ],
+                userNumber: -1,
                 options: {
                     title: '最近七天每天的用户访问量',
                     showValue: false,
@@ -180,20 +148,46 @@
                     bgColor: '#F5F8FD',
                     bottomPadding: 30,
                     topPadding: 30
-                }
+                },
+                lastLoginTime: new Date().toLocaleString(),
+                colors: [
+                    '#ed1941', // 鲜红
+                    '#409eff', // primary 蓝
+                    '#67c23a', // success 绿
+                    '#e6a23c', // warning 橙
+                    '#f56c6c', // error 红
+                ]
             }
         },
         components: {
-            Schart
+            Schart, RegisterList
         },
         computed: {
-            role() {
-                return this.name === 'admin' ? '超级管理员' : '普通用户';
-            }
+            userRankSort() {
+                const rank = this.userRank;
+                rank.sort((a, b) => {
+                    return b.score - a.score
+                }).slice(0, 3);
+                
+                rank[0].color = "#f56c6c";
+                rank[1].color = "#409eff";
+                rank[2].color = "#67c23a";
+
+                return rank;
+            }  
         },
         created(){
-            this.handleListener();
-            this.changeDate();
+            const self = this;
+            // 获取用户数量
+            self.$axios.get('/api/admin/all-user')
+            .then(response => {
+                const data = response.data;
+                if (data.status === 200) {
+                    self.userNumber = data.result.length;
+                }
+            })
+            self.handleListener();
+            self.changeDate();
         },
         activated(){
             this.handleListener();
@@ -223,6 +217,10 @@
             renderChart(){
                 this.$refs.bar.renderChart();
                 this.$refs.line.renderChart();
+            },
+            randomnColor() {
+                let random = parseInt(Math.random() * this.colors.length - 0.5);
+                return this.colors[random]
             }
         }
     }
@@ -316,6 +314,7 @@
         font-size: 14px;
         color: #999;
         line-height: 25px;
+        text-align: left;
     }
 
     .user-info-list span {
@@ -324,15 +323,7 @@
 
     .mgb20 {
         margin-bottom: 20px;
-    }
-
-    .todo-item {
-        font-size: 14px;
-    }
-
-    .todo-item-del {
-        text-decoration: line-through;
-        color: #999;
+        text-align: left;
     }
 
     .schart {

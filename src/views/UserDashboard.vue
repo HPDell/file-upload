@@ -1,278 +1,198 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/img/logo.png">
-    <el-divider>上传模块</el-divider>
-    <div class="upload-area">
-      <el-input placeholder="请输入您的ID" v-model="userInfo.userId" style="width:250px; margin: 0 5px;"
-        @keyup.enter.native="renewFiles"></el-input>
-      <el-button size="small" type="primary" style="margin: 0 5px;" @click="renewFiles">刷新文件</el-button>
-      <br><br>
-      <el-upload
-        ref="upload"
-        action="/api/upload-file"
-        multiple
-        :data="userInfo"
-        :on-remove="handleRemove"
-        :on-change="handleFileChange"
-        :on-success="handleSuccess"
-        :file-list="fileList"
-        :auto-upload="false">
-        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-        <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
-      </el-upload>
-    </div>
-    <el-divider>文件列表</el-divider>
-    <div class="file-list">
-      <el-table
-        ref="fileList"
-        @selection-change="handleSelectionChange"
-        :data="uploadedFileList">
-        <el-table-column type="selection" width="50"></el-table-column>
-        <el-table-column prop="fileName" label="文件名" width="300"></el-table-column>
-        <el-table-column prop="uploadTime" label="上传时间" sortable></el-table-column>
-        <el-table-column label="操作" fixed="right" width="100" align="center">
-          <template slot-scope="scope">
-            <el-button type="text" @click="onDownload(scope.row.url)">下载</el-button>
-            <el-button type="text" @click="onDelete(scope.row.url)"
-              style="color:red;">删除</el-button>
-            <el-button type="text" @click="onScore(scope.row.url)"
-              style="color:green;">评分</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div style="text-align: right; margin: 3px 5px;">
-        <el-button size="small" @click="$refs.fileList.toggleAllSelection();">全选/全不选</el-button>
-        <el-button type="danger" size="small" @click="onMultiDelete();">批量删除</el-button>
-        <el-button type="primary" size="small" @click="renewFiles();">刷新文件</el-button>
-      </div>
-    </div>
-    <el-dialog
-      title="得分"
-      :visible.sync="scoreDialogVisible"
-      width="30%"
-      center>
-      <p class="score">{{ score }}</p>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="scoreDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="scoreDialogVisible = false">确 定</el-button>
-      </span>
-    </el-dialog>
-  </div>
+	<div>
+		<!-- Header -->
+		<div class="user-dashboard-header">
+			<img src="../assets/img/logo.png">
+			<div class="header-wrap">
+				<p style="margin:0;font-size:24px;">你好！ {{name}}</p>
+				<el-button type="text" @click="dialogVisible=true;">修改密码</el-button>
+				<el-button type="text" @click="logout">退出登录</el-button>
+			</div>
+		</div>
+		<el-divider></el-divider>
+		<!-- Body -->
+		<div class="user-dashboard-body">
+			<!-- File upload -->
+			<div class="user-dashboard-sub-container">
+				<u-score-wrap :account="account" @fresh="handleScoreFresh"></u-score-wrap>
+			</div>
+			<!-- Divider -->
+			<el-divider direction="vertical"></el-divider>
+			<!-- Rank -->
+			<div class="user-dashboard-sub-container">
+				<u-rank-wrap ref="RankWrap" :account="account"></u-rank-wrap>
+			</div>
+		</div>
+
+		<!-- 修改密码弹框 -->
+		<el-dialog title="修改密码" :visible.sync="dialogVisible" width="30%">
+			<el-form :model="form" ref="pwdForm" :rules="rules" label-width="120px">
+				<el-form-item label="旧密码" prop="oldPwd" @keydown.enter.native="submitAlterPassword">
+					<el-input v-model="form.oldPwd" placeholder="请输入" :type="pwdShow.old ? 'plain' : 'password'">
+						<i class="el-icon-view" slot="suffix" @click="pwdShow.old=!pwdShow.old"></i>
+					</el-input>
+				</el-form-item>
+				<el-form-item label="新密码" prop="newPwd" @keydown.enter.native="submitAlterPassword">
+					<el-input v-model="form.newPwd" placeholder="请输入" :type="pwdShow.new ? 'plain' : 'password'">
+						<i class="el-icon-view" slot="suffix" @click="pwdShow.new=!pwdShow.new"></i>
+					</el-input>
+				</el-form-item>
+				<el-form-item label="确认新密码" prop="confirmPwd" @keydown.enter.native="submitAlterPassword">
+					<el-input v-model="form.confirmPwd" placeholder="请输入" :type="pwdShow.confirm ? 'plain' : 'password'">
+						<i class="el-icon-view" slot="suffix" @click="pwdShow.confirm=!pwdShow.confirm"></i>
+					</el-input>
+				</el-form-item>
+			</el-form>
+			<div class="form-bottom">
+				<el-button @click="form={};dialogVisible=false;">取消</el-button>
+				<el-button type="primary" @click="submitAlterPassword">确认修改</el-button>
+			</div>
+		</el-dialog>
+
+	</div>
 </template>
 
 <script>
+import uScoreWrap from '../components/UserScoreWrap';
+import uRankWrap from '../components/UserRankWrap';
+
 export default {
-  name: 'home',
-  data() {
-    return {
-      userInfo: {
-        userId: '2016302590075'
-      },
-      fileList: [],
-      uploadedFileList: [],
-      multiSelection: [],
-
-      score: -1,
-      scoreDialogVisible: false
-    }
-  },
-  methods: {
-    handleSelectionChange(val) {
-      this.multiSelection = val;
-    },
-    onMultiDelete(files) {
-      const self = this;
-      if (self.multiSelection.length < 1) return;
-
-      console.log(self.multiSelection)
-
-      self.$confirm('确定删除[' + self.multiSelection.length + ']个文件吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-      }).then( () => {
-        self.multiSelection.forEach( file => {
-          self.$axios.post('/api/delete-file', {
-            url: file.url
-          }).then( response => {
-            if (response.status == 200) {
-              self.$message({
-                type: 'success',
-                message: '删除成功: ' + file.fileName
-              });
-              self.renewFiles();
+	components: {
+		uScoreWrap, uRankWrap
+	},
+	data() {
+		const pwdValidator = (rule, value, callback) => {
+			console.log(value)
+            if (value === '') {
+				callback(new Error('请输入密码'));
+			} else if (value.length < 6) {
+				callback(new Error('至少输入6位密码'));
             } else {
-              self.$message({
-                type: 'error',
-                message: '删除失败[' + response.status + ']：' + file.name
-              })
+                callback();
             }
-          })
-        })
-      }).catch( () => {
-          self.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
-      })
-    },
-    onScore(url) {
-      const self = this;
-      self.$axios.post('/api/score', {
-        url: url
-      }).then(response => {
-        if (response.data.status == 200) {
-          self.score = response.data.result;
-          self.scoreDialogVisible = true;
-        } else {
-          self.$message({
-            message: response.data.message,
-            type: 'error'
-          });
-        }
-      }).catch(error => {
-        if (error) {
-          console.error(error)
-        }
-      });
-    },
-    onDownload(url) {
-      console.log('下载：' + url);
-      window.open(url);
-    },
-    onDelete(url) {
-      console.log('删除：' + url);
-
-      const self = this;
-      let fileName = url.split('/').slice(-1);
-      self.$confirm('确定删除 [' + fileName + '] ？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          self.$axios.post('/api/delete-file', {
-            url: url
-          }).then( response => {
-            console.log(response)
-            if (response.status == 200) {
-              self.$message({
-                type: 'success',
-                message: '删除成功'
-              });
-              self.renewFiles();
+		};
+		const pwdConfirm = (rule, value, callback) => {
+            if (value === '') {
+				callback(new Error('请输入密码'));
+			} else if (value !== this.form.newPwd) {
+				callback(new Error('两次输入密码不一致'));
             } else {
-              self.$message({
-                type: 'error',
-                message: '删除失败：' + response.status
-              })
+                callback();
             }
-          }).catch((err) => {
-            if (err) console.error(err);
-          });
-        }).catch(() => {
-          self.$message({
-            type: 'info',
-            message: '已取消删除'
-          });          
-        });
-    },
-    submitUpload() {
-      const self = this;
-      
-      if (!self.userInfo.userId) {
-        return self.$message({
-          type: 'warning',
-          message: '请输入唯一标识符'
-        });
-      } else {
-        let nameList1 = self.uploadedFileList.map( file => { return file.fileName; }); // 已上传
-        let nameList2 = self.fileList.map( file => { return file.name; }); // 未上传
+		}
+		return {
+			name: localStorage.getItem('user_name'),
+			account: localStorage.getItem('user_account'),
+			dialogVisible: false,
+			form: {
+				oldPwd: '',
+				newPwd: '',
+				confirmPwd: ''
+			},
+			pwdShow: {
+				old: false,
+				new: false,
+				confirm: false
+			},
+			rules: {
+				oldPwd: [
+					{required: true, message: '请输入旧密码'}
+				],
+				newPwd: [
+					{required: true, validator: pwdValidator, trigger: 'blur'}
+				],
+				confirmPwd: [
+					{required: true, validator: pwdConfirm, trigger: 'change'},
+					{required: true, validator: pwdConfirm, trigger: 'blur'},
+				]
+			}
+		}
+	},
+	methods: {
+		submitAlterPassword() {
+			const self = this;
+			self.$refs.pwdForm.validate()
+			.then(valid => {
+				if (valid) {
+					if (self.form.oldPwd === self.form.newPwd) {
+						return self.$message({
+							type: 'warning',
+							message: '新旧密码一致，无需修改'
+						});
+					} else {
+						// 加入用户账户
+						self.form.account = self.account;
 
-        let existNameList = nameList2.map( file => {
-          if (nameList1.indexOf(file) === -1) return 0;
-          else return 1;
-        });
-        
-        if (existNameList.join('') > 0) {
-          self.$confirm('上传列表中存在同名文件，继续上传将覆盖', '提示', {
-            confirmButtonText: '继续',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then( () => {
-            self.$refs.upload.submit();
-          }).catch( () => {});
-        } else {
-          self.$refs.upload.submit();
-        }
-      }
-    },
-    handleRemove(file, fileList) {
-      this.fileList = fileList;
-    },
-    handleFileChange(file, fileList) {
-      this.fileList = fileList;
-    },
-    handleSuccess(response, file, fileList) {
-      const self = this;
-      if (response == 'OK' || response == 200) {
-        self.$message({
-          type: 'success',
-          message: '文件[' + file.name + ']上传成功'
-        });
+						self.$axios.post('/api/user/alter-password', self.form)
+						.then(response => {
+							const data = response.data;
+							if (data.status === 200) {
+								self.$message({
+									type: 'success',
+									message: '修改成功'
+								});
 
-        fileList.splice(fileList.indexOf(file), 1);
-        self.renewFiles();
-      } else {
-        self.$message({
-          type: 'error',
-          message: response
-        })
-      }
-    },
-    renewFiles() {
-      const self = this;
-      if (self.userInfo.userId) {
-        self.$axios.get('/api/files' + '?userId=' + self.userInfo.userId)
-        .then( response => {
-          if (response.data.status == 200) {
-            self.uploadedFileList = response.data.result;
-            self.$message({
-              type: 'success',
-              message: '已刷新'
-            });
-          } else {
-            self.$message({
-              message: response.data.message,
-              type: 'error'
-            });
-            self.uploadedFileList = [];
-          }
-        })
-        .catch( error => {
-          if (error) console.error(error);
-        })
-      }
-    }
-  },
-  created () {
-    const self = this;
-    self.renewFiles();
-  }
+								// self.form = {};
+								self.dialogVisible = false;
+							} else {
+								console.error(data.message);
+								self.$message({
+									type: 'error',
+									message: '[' + data.status + ']' + data.message
+								});
+							}
+						})
+						.catch(err => {
+							console.error(err);
+						});
+					}
+				}
+			})
+		},
+		logout() {
+			this.$router.replace('/login')
+		},
+		handleScoreFresh() {
+			this.$refs.RankWrap.getRank();
+		}
+	},
 }
 </script>
 
-<style>
-.upload-area, .file-list {
-  border: 2px dashed rgb(112, 109, 109);
-  width: 50%;
-  margin: auto;
-  padding: 5px;
-  border-radius: 10px;
+<style scoped>
+.user-dashboard-header {
+	position: relative;
+	width: 100%;
+	height: 250px;
+	vertical-align: bottom;
+	margin: 0;
 }
-.score {
-  text-align: center;
-  font-size: 24px;
-  color: red;
-  font-weight: bold;
+.user-dashboard-header img {
+	height: 200px;
+	width: 200px;
+}
+.user-dashboard-header .header-wrap {
+	position: absolute;
+	height: 50px;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+.user-dashboard-body {
+	height: 800px;
+	line-height: 800px;
+}
+.user-dashboard-body .el-divider {
+	height: 100%;
+	vertical-align: top;
+}
+.user-dashboard-sub-container {
+	display: inline-block;
+	vertical-align: top;
+	height: 100%;
+	/* width: 500px; */
+}
+.el-icon-view {
+	cursor: pointer;
 }
 </style>

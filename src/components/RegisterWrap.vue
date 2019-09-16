@@ -2,16 +2,16 @@
     <div class="register-wrap">
         <el-form class="form" ref="registerForm" status-icon :rules="rules" :model="form" label-width="80px">
             <el-form-item label="账户" prop="account">
-                <el-input style="width:280px;" v-model="form.account" placeholder="账户"></el-input>
+                <el-input style="width:280px;" v-model="form.account" placeholder="账户" @keydown.enter.native="submitRegister"></el-input>
             </el-form-item>
             <el-form-item label="用户名" prop="name">
-                <el-input style="width:280px;" v-model="form.name" placeholder="用户名"></el-input>
+                <el-input style="width:280px;" v-model="form.name" placeholder="用户名" @keydown.enter.native="submitRegister"></el-input>
             </el-form-item>
             <el-form-item label="密码" prop="password">
-                <el-input style="width:280px;" v-model="form.password" placeholder="密码" type="password"></el-input>
+                <el-input style="width:280px;" v-model="form.password" placeholder="密码" @keydown.enter.native="submitRegister" type="password"></el-input>
             </el-form-item>
             <el-form-item label="确认密码" prop="password_confirm">
-                <el-input style="width:280px;" v-model="form.password_confirm" placeholder="确认密码" type="password"></el-input>
+                <el-input style="width:280px;" v-model="form.password_confirm" placeholder="确认密码" @keydown.enter.native="submitRegister" type="password"></el-input>
             </el-form-item>
         </el-form>
         <br>

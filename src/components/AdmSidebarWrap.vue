@@ -8,7 +8,7 @@
             text-color="#bfcbd9"
             active-text-color="#20a0ff"
             unique-opened
-            router
+            @select="handleSelect"
         >
             <template v-for="item in items">
                 <template v-if="item.subs">
@@ -67,12 +67,25 @@ export default {
                     title: '用户管理'
                 },
                 {
+                    icon: 'el-icon-files',
+                    index: 'ad-files',
+                    title: '文件管理'
+                },
+                {
                     icon: 'el-icon-pie-chart',
                     index: 'ad-stats',
                     title: '数据统计'
                 }
             ]
         };
+    },
+    methods: {
+        // 自定义路由跳转
+        handleSelect(index, indexPath) {
+            if ('/' + index !== this.$route.path) {
+                this.$router.push(index)
+            }
+        }
     },
     computed: {
         onRoutes() {

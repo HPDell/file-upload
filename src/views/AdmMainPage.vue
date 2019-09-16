@@ -40,9 +40,9 @@
                         <el-card shadow="hover" :body-style="{padding: '0px'}">
                             <div class="grid-content grid-con-2">
                                 <i class="el-icon-lx-notice grid-con-icon"></i>
-                                <div class="grid-cont-right">
-                                    <div class="grid-num">321</div>
-                                    <div>已提交作品数</div>
+                                <div class="grid-cont-right" style="cursor:pointer;" @click="$router.push('/ad-rank')">
+                                    <div class="grid-num">{{userRank.length}}</div>
+                                    <div>排名数</div>
                                 </div>
                             </div>
                         </el-card>
@@ -52,8 +52,8 @@
                             <div class="grid-content grid-con-3">
                                 <i class="el-icon-lx-goods grid-con-icon"></i>
                                 <div class="grid-cont-right">
-                                    <div class="grid-num">5000</div>
-                                    <div>文件数</div>
+                                    <div class="grid-num">{{submitTimes}}</div>
+                                    <div>总提交次数</div>
                                 </div>
                             </div>
                         </el-card>
@@ -115,23 +115,7 @@
                         value: 1065
                     }
                 ],
-                userRank: [
-                    {
-                        name: '林杉',
-                        id: '123',
-                        score: 76.81367,
-                    },
-                    {
-                        name: '林杉1',
-                        id: '124',
-                        score: 98.01793,
-                    },
-                    {
-                        name: '林杉2',
-                        id: '125',
-                        score: 83.54692,
-                    },
-                ],
+                userRank: [],
                 userNumber: -1,
                 options: {
                     title: '最近七天每天的用户访问量',
@@ -156,7 +140,8 @@
                     '#67c23a', // success 绿
                     '#e6a23c', // warning 橙
                     '#f56c6c', // error 红
-                ]
+                ],
+                submitTimes: 0
             }
         },
         components: {
@@ -164,20 +149,46 @@
         },
         computed: {
             userRankSort() {
-                const rank = this.userRank;
-                rank.sort((a, b) => {
+                let rank = this.userRank.map(r=>r);
+                rank = rank.sort((a, b) => {
                     return b.score - a.score
-                }).slice(0, 3);
+                }).splice(0, 3);
                 
-                rank[0].color = "#f56c6c";
-                rank[1].color = "#409eff";
-                rank[2].color = "#67c23a";
+                if (rank.length >= 3) {
+                    rank[0].color = "#f56c6c";
+                    rank[1].color = "#409eff";
+                    rank[2].color = "#67c23a";   
+                }
 
                 return rank;
             }  
         },
         created(){
             const self = this;
+            // 获取总提交次数
+            self.$axios.get('/api/user/submit-times')
+            .then(response => {
+                const data = response.data;
+                if (data.status === 200) {
+                    self.submitTimes = data.result;
+                }
+            }).catch(err => console.error(err));
+            
+            // 获取排名
+            self.$axios.get('/api/user/scores')
+            .then(response => {
+                const data = response.data;
+                if (data.status === 200) {
+                    self.userRank = data.result.map(i => {
+                        return {
+                            name: i.user,
+                            id: i.account,
+                            score: i.score
+                        }
+                    })
+                }
+            }).catch(err => console.error(err));
+
             // 获取用户数量
             self.$axios.get('/api/admin/all-user')
             .then(response => {

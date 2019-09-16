@@ -13,6 +13,9 @@
                     <span v-if="data.isDir">
                         <i class="el-icon-folder-opened"></i>&nbsp;
                         {{data.label}}
+                        <el-tag type="success" size="mini" v-if="(node.childNodes.length > 0 ? true : false)">
+                            子项数：{{node.childNodes.length}}
+                        </el-tag>
                     </span>
                     <span v-else>
                         &emsp;
@@ -21,8 +24,8 @@
                 </div>
                 <div>
                     <span v-if="data.isDir">
-                        <el-button type="text" @click="deleteSelection(node, data)">清理</el-button>
-                        <el-button type="text" @click="deleteDir(node, data)">删除</el-button>
+                        <el-button type="text" @click.prevent="deleteSelection(node, data)">清理</el-button>
+                        <el-button type="text" @click.prevent="deleteDir(node, data)">删除</el-button>
                     </span>
                     <span v-else>
                         <el-button type="text" style="color:red;" @click="deleteFile(node, data)">删除文件</el-button>
@@ -53,8 +56,7 @@ export default {
                 resolve([
                     {
                         label: 'files',
-                        isDir: true,
-                        disabled: true
+                        isDir: true
                     }
                 ])
             } else if (node.data.isDir){
@@ -132,13 +134,14 @@ export default {
         },
         deleteSelection(node, data) {
             const self = this;
+            const parentNode = node; // 保证当前文件夹所对应节点不变
             
-            const ep = EventProxy.create('children', 'path', (children, path) => {
-                if (children.length > 0) {
+            const ep = EventProxy.create('children', 'path', (nodes, path) => {
+                if (nodes.length > 0) {
                     self.$confirm(`是否删除 ${path} 中选中的所有文件？`, '提示', {type: 'warning'})
                     .then(() => {
                         self.$axios.post('/api/delete-files', {
-                            list: children.map(i => {
+                            list: nodes.map(i => {
                                 return {
                                     path: path + i.data.label,
                                     isDir: i.data.isDir
@@ -150,7 +153,13 @@ export default {
                                 self.$message({
                                     type: 'success',
                                     message: '成功'
-                                })
+                                });
+
+                                parentNode.childNodes = parentNode.childNodes.map(i => {
+                                    if (nodes.indexOf(i) === -1) {
+                                        return i;
+                                    }
+                                }).filter(r=>r);
                             } else {
                                 console.error(data);
                                 return self.$message({
@@ -184,6 +193,9 @@ export default {
         },
         deleteFile(node, data) {
             const self = this;
+            const children = node.parent.childNodes;
+            const index = children.indexOf(node);
+
             const ep = new EventProxy().after('node', node.level, (list) => {
                 let path = '/' + list.reverse().join('/');
                 
@@ -193,7 +205,7 @@ export default {
                         list: [
                             {
                                 path: path,
-                                isDir: true
+                                isDir: false
                             }
                         ]
                     }).then( response => {
@@ -202,7 +214,8 @@ export default {
                             self.$message({
                                 type: 'success',
                                 message: '成功'
-                            })
+                            });
+                            children.splice(index, index+1);
                         } else {
                             console.error(data);
                             return self.$message({

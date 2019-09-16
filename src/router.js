@@ -48,6 +48,12 @@ const router = new Router({
           meta: { title: '用户管理' }
         },
         {
+          path: '/ad-rank',
+          name: 'Admin Dashboard User Rank',
+          component: () => import('./views/AdmRankPage.vue'),
+          meta: { title: '排名管理' }
+        },
+        {
           path: '/ad-files',
           name: 'Admin Dashboard File Manager',
           component: () => import('./views/AdmFilesPage.vue'),
@@ -59,13 +65,13 @@ const router = new Router({
 })
 
 // 钩子函数进行权限跳转
-// router.beforeEach( (to, from, next) => {
-//   const role = sessionStorage.getItem('permission');
-//   if (!role && to.path !== '/login') {
-//     next('/login');
-//   } else {
-//     next();
-//   }
-// })
+router.beforeEach( (to, from, next) => {
+  const role = sessionStorage.getItem('permission');
+  if (!role && to.path !== '/login') {
+    next('/login');
+  } else {
+    next();
+  }
+})
 
 export default router;

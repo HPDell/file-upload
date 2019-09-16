@@ -67,6 +67,11 @@ export default {
                     title: '用户管理'
                 },
                 {
+                    icon: 'el-icon-medal-1',
+                    index: 'ad-rank',
+                    title: '排名管理'
+                },
+                {
                     icon: 'el-icon-files',
                     index: 'ad-files',
                     title: '文件管理'

@@ -136,19 +136,7 @@ export default {
                 console.error(error);
             }
         });
-
-        // 设置迭代器，定期处理sessionStorage，避免恶意添加
-        self.i = setInterval(() => {
-            sessionStorage.clear();
-        }, 100);
     },
-    destroyed() {
-        // 删除迭代器
-        clearInterval(this.i);
-        
-        // 清空会话
-        sessionStorage.clear();
-    }
 }
 </script>
 

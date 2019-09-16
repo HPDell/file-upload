@@ -4,6 +4,14 @@
   </div>
 </template>
 
+<script>
+export default {
+  beforeDestroy() {
+    sessionStorage.clear();
+  }
+}
+</script>
+
 <style>
 html, body, div {
     margin: 0;

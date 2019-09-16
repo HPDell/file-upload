@@ -36,14 +36,16 @@ export default {
     width: 100%;
 }
 .login-dialog {
-    vertical-align: middle;
-    display: inline-block;
     height: 350px;
     line-height: 350px;
     width: 450px;
     border-radius: 25px;
     /* opacity: 0.8; (改成background)*/
-    background-color: rgba(255, 255, 255, 0.8)
+    background-color: rgba(255, 255, 255, 0.8);
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    margin-left: -225px;
 
 }
 </style>

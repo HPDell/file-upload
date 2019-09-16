@@ -150,6 +150,7 @@ export default {
 			})
 		},
 		logout() {
+			sessionStorage.clear();
 			this.$router.replace('/login')
 		},
 		handleScoreFresh() {

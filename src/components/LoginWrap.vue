@@ -2,7 +2,22 @@
     <div class="login-wrap" >
         <el-form class="form" ref="loginForm" :model="form" label-width="70px">
             <el-form-item label="账户">
-                <el-input style="width:300px;" v-model="form.account" placeholder="账户"></el-input>
+                <el-select style="width:300px;" v-model="form.account" filterable placeholder="账户">
+                    <el-option
+                        v-for="item in accountList"
+                        :key="item.account"
+                        :label="item.account"
+                        :value="item.account"
+                    >
+                        <span>{{item.account}}</span>
+                        <el-tag :type="item.permission === 'admin' ? 'danger' : 'success'"
+                            style="float:right"
+                            size="mini"
+                        >
+                            {{item.permission === 'admin' ? '管理员' : '普通用户'}}
+                        </el-tag>
+                    </el-option>
+                </el-select>
             </el-form-item>
             <el-form-item label="密码">
                 <el-input style="width:300px;" v-model="form.password" placeholder="密码" type="password"></el-input>
@@ -33,7 +48,8 @@ export default {
                 password: '123456'
             },
             isGtOk: false,
-            captchaObj: {}
+            captchaObj: {},
+            accountList: []
         }
     },
     methods: {
@@ -114,10 +130,28 @@ export default {
         },
         register() {
             this.$emit('register');
+        },
+        getAccount() {
+            const self = this;
+            self.$axios.get('/api/user/all-account')
+            .then(response => {
+                const data = response.data;
+                if (data.status === 200) {
+                    self.accountList = data.result;
+                } else {
+                    console.error(data);
+                    return self.$message({
+                        type: 'error',
+                        message: '[' + data.status + ']' + data.message
+                    });
+                }
+            }).catch(err => console.error(err));
         }
     },
     created() {
         const self = this;
+        self.getAccount();
+
         self.$axios.get('/gt/register?t=' + (new Date()).getTime())
         .then(response => {
             if (response.status === 200) {

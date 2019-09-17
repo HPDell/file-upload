@@ -68,10 +68,10 @@ export default {
                 ]
             },
             form: {
-                account: 'aaa',
-                name: '小林杉',
-                password: 'aaaaaa',
-                password_confirm: 'aaaaaa'
+                account: '',
+                name: '',
+                password: '',
+                password_confirm: ''
             }
         }
     },

@@ -7,6 +7,7 @@
             lazy
             accordion
             :load="loadNode"
+            :expand-on-click-node="false"
         >
             <div class="custom-tree-node" slot-scope="{node, data}">
                 <div>
@@ -94,6 +95,9 @@ export default {
         },
         deleteDir(node, data) {
             const self = this;
+            const children = node.parent.childNodes;
+            const index = children.indexOf(node);
+
             const ep = new EventProxy().after('node', node.level, (list) => {
                 let path = '/' + list.reverse().join('/');
                 
@@ -113,6 +117,7 @@ export default {
                                 type: 'success',
                                 message: '成功'
                             })
+                            children.splice(index, 1);
                         } else {
                             console.error(data);
                             return self.$message({
@@ -215,7 +220,7 @@ export default {
                                 type: 'success',
                                 message: '成功'
                             });
-                            children.splice(index, index+1);
+                            children.splice(index, 1);
                         } else {
                             console.error(data);
                             return self.$message({

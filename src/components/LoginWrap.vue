@@ -48,7 +48,8 @@ export default {
             },
             isGtOk: false,
             captchaObj: {},
-            accountList: []
+            accountList: [],
+            gtRegistered: false
         }
     },
     methods: {
@@ -59,6 +60,10 @@ export default {
         },
         login(loginForm='loginForm') {
             const self = this;
+
+            if (!self.gtRegistered) {
+                return self.$alert('请等待完成网络检测', '提示', {type: 'warning'});
+            }
             
             // 极验验证
             if (self.isGtOk && self.captchaObj) {
@@ -147,22 +152,29 @@ export default {
 
         self.$axios.get('/gt/register?t=' + (new Date()).getTime())
         .then(response => {
-            if (response.status === 200) {
-                const data = response.data;
+            const data = response.data;
+            const result = data.result;
+            if (data.status === 200) {
                 initGeetest({
-                    gt: data.gt,
-                    challenge: data.challenge,
-                    new_captcha: data.new_captcha,
-                    offline: !data.success,
+                    gt: result.gt,
+                    challenge: result.challenge,
+                    new_captcha: result.new_captcha,
+                    offline: !result.success,
                     product: "float", // float/popup
                     width: "100%"
                 }, self.handleGtInit)
+            } else {
+                console.log(data)
             }
-        }).catch(error => {
-            if (error) {
-                console.error(error);
-            }
-        });
+
+            // 表明已注册，可以登录
+            self.gtRegistered = true;
+            self.$message({
+                type: data.status === 200 ? 'warning' : 'info',
+                message: '当前环境：' + (data.status === 200 ? '互联网连接' : '无互联网连接')
+            });
+
+        }).catch(error => console.error(error));
     },
 }
 </script>

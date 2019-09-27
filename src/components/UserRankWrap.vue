@@ -4,7 +4,7 @@
         
         <img src="../assets/img/stage.png">
 
-        <el-table :data="rankList" height="610px">
+        <el-table :data="rankList" height="610px" id="user-rank-table">
             <el-table-column label="排名" width="135" align="right">
                 <template slot-scope="scope">
                     <span :class="scope.row.enhance ? 'enhance' : ''">{{scope.$index+1}}</span>
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import $ from 'jquery';
 export default {
     props: {
         width: {
@@ -49,8 +50,11 @@ export default {
                     
                     // 突出显示个人
                     if (self.account) {
-                        self.rankList = data.result.map(i => {
+                        self.rankList = data.result.map((i, index) => {
                             if (self.account === i.account) {
+
+                                self.setTableRowPosition(index + 1) // 设置滚动
+                                
                                 i.enhance = true;
                                 return i;
                             } else {
@@ -72,11 +76,19 @@ export default {
             .catch(err => {
                 console.error(err)
             });
+        },
+        setTableRowPosition(rank = 1) {
+            const table_body_wrapper = $('#user-rank-table > .el-table__body-wrapper')
+            const table = $('#user-rank-table > .el-table__body-wrapper > table')
+
+            setTimeout(() => {
+                table_body_wrapper.scrollTop(table.height()*(rank-1)/100)
+            }, 100);
         }
     },
     created() {
         this.getRank();
-    },
+    }
 }
 </script>
 
@@ -94,5 +106,6 @@ export default {
     font-size: 16px;
     font-weight: bold;
     color: red;
+    text-decoration: underline;
 }
 </style>

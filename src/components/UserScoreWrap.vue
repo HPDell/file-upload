@@ -19,8 +19,12 @@
     <!-- 得分与历史得分 -->
     <h3>您的得分情况</h3>
     <div class="score-area">
-      <el-progress :stroke-width="10" type="circle" :percentage="parseFloat(scoreMax.toFixed(5))"></el-progress>
-      <p style="margin:5px;">最高分：<span style="color:red;font-weight:bold;font-size:24px;text-decoration:underline;">{{scoreMax.toFixed(5)}}</span></p>
+      <el-progress :stroke-width="10" type="circle" :percentage="parseFloat((scoreMax * 100 + '').slice(0, 9))"></el-progress>
+      <p style="margin:5px;">最高分：
+        <span style="color:red;font-weight:bold;font-size:24px;text-decoration:underline;">
+          {{(scoreMax + '').slice(0, 10)}}
+        </span>
+      </p>
 
       <el-table :data="scoreList" max-height="380px">
         <el-table-column label="分数" sortable prop="score">
@@ -39,7 +43,17 @@
       :visible.sync="scoreDialogVisible"
       width="30%"
       center>
-      <p class="score">{{ score }}</p>
+      <p class="score">{{ totalScore }}</p>
+      <table border="1" style="margin:auto;text-align:center;">
+        <tr>
+          <th>分数1</th><th>分数2</th>
+        </tr>
+        <tr>
+          <td>{{score1 === -1 ? 'Error' : score1}}</td>
+          <td>{{score2 === -1 ? 'Error' : score2}}</td>
+        </tr>
+      </table>
+      <span>Tip：若分数出现“Error”，说明该部分评分失败</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="scoreDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="scoreDialogVisible = false">确 定</el-button>
@@ -67,7 +81,9 @@ export default {
         userId: this.account
       },
 
-      score: -1,
+      score1: 0,
+      score2: 0,
+      totalScore: 0,
       scoreDialogVisible: false,
 
       scoreList: [],
@@ -132,7 +148,10 @@ export default {
           if (resData.status === 200) {
             loading.close();
             self.scoreDialogVisible = true;
-            self.score = resData.score;
+
+            self.totalScore = resData.score;
+            self.score1 = resData.score1;
+            self.score2 = resData.score2;
             
             // 获取自己分数
             self.getScore();

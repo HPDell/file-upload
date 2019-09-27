@@ -19,7 +19,7 @@
                     </div>
                     <p style="margin:0 0 5px;" v-for="item in userRankSort" :key="item.id">
                         {{item.name}}
-                        <el-progress text-inside :stroke-width="20" :percentage="item.score" :color="item.color"></el-progress>
+                        <el-progress text-inside :stroke-width="20" :percentage="item.score * 100" :color="item.color"></el-progress>
                     </p>
                 </el-card>
             </el-col>
@@ -78,7 +78,7 @@
 </template>
 
 <script>
-    import Schart from 'vue-schart';
+    import Schart from 'vue-schart'; //https://github.com/lin-xin/sChart.js#options
     import bus from '../bus';
     import RegisterList from '../components/AdmRegisterList';
     export default {
@@ -86,40 +86,13 @@
         data() {
             return {
                 name: localStorage.getItem('user_name'),
-                data: [{
-                        name: '2018/09/04',
-                        value: 1083
-                    },
-                    {
-                        name: '2018/09/05',
-                        value: 941
-                    },
-                    {
-                        name: '2018/09/06',
-                        value: 1139
-                    },
-                    {
-                        name: '2018/09/07',
-                        value: 816
-                    },
-                    {
-                        name: '2018/09/08',
-                        value: 327
-                    },
-                    {
-                        name: '2018/09/09',
-                        value: 228
-                    },
-                    {
-                        name: '2018/09/10',
-                        value: 1065
-                    }
-                ],
+                data: [], // name是x轴，value是y轴
+                loginTimes: [],
                 userRank: [],
                 userNumber: -1,
                 options: {
                     title: '最近七天每天的用户访问量',
-                    showValue: false,
+                    showValue: true,
                     fillColor: 'rgb(45, 140, 240)',
                     bottomPadding: 30,
                     topPadding: 30
@@ -198,7 +171,7 @@
                 }
             })
             self.handleListener();
-            self.changeDate();
+            self.getLoginTimes();
         },
         activated(){
             this.handleListener();
@@ -208,12 +181,28 @@
             bus.$off('collapse', this.handleBus);
         },
         methods: {
-            changeDate(){
-                const now = new Date().getTime();
-                this.data.forEach((item, index) => {
-                    const date = new Date(now - (6 - index) * 86400000);
-                    item.name = `${date.getFullYear()}/${date.getMonth()+1}/${date.getDate()}`
-                })
+            getLoginTimes() {
+                const self = this;
+                self.$axios.get('/api/user/login-times')
+                .then(response => {
+                    const data = response.data;
+                    if (data.status === 200) {
+                        self.data = data.result.map(i => {
+                            return {
+                                name: i.date,
+                                value: parseInt(i.times)
+                            };
+                        }).slice(0, 7)
+                        
+                        self.data.reverse();
+                    } else {
+                        console.error(data);
+                        return self.$message({
+                            type: 'error',
+                            message: JSON.stringify(data.message)
+                        })
+                    }
+                }).catch(err => console.error(err));
             },
             handleListener(){
                 bus.$on('collapse', this.handleBus);

@@ -2,8 +2,15 @@
   <div class="user-score-wrap" :style="{width: width}">
     <!-- 上传功能 -->
     <h3>在此上传您的成果</h3>
-    <div class="upload-area">
+    <div class="upload-area"
+      v-loading="scoreLoading"
+      element-loading-text="文件已上传成功，正在评分中……"
+      element-loading-spinner="el-icon-loading"
+    >
       <el-upload
+        v-loading="uploadLoading"
+        element-loading-text="检查上一次提交……"
+        element-loading-spinner="el-icon-loading"
         ref="upload"
         action="/api/upload-file"
         :data="userInfo"
@@ -19,7 +26,7 @@
     <!-- 得分与历史得分 -->
     <h3>您的得分情况</h3>
     <div class="score-area">
-      <el-progress :stroke-width="10" type="circle" :percentage="parseFloat((scoreMax * 100 + '').slice(0, 9))"></el-progress>
+      <el-progress :stroke-width="10" type="circle" :percentage="parseFloat((scoreMax + '').slice(0, 9))"></el-progress>
       <p style="margin:5px;">最高分：
         <span style="color:red;font-weight:bold;font-size:24px;text-decoration:underline;">
           {{(scoreMax + '').slice(0, 10)}}
@@ -32,7 +39,7 @@
             <span :style="{color: scope.row.score == scoreMax ? 'red' : ''}">{{scope.row.score}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="提交时间" sortable prop="time">
+        <el-table-column label="提交时间" sortable :sort-method="scoreSortMethod" prop="time">
         </el-table-column>
       </el-table>
     </div>
@@ -89,12 +96,34 @@ export default {
       scoreList: [],
       scoreMax: 0,
 
+      // 分数运算是否完成
+      scoreLoading: false,
+      // 上传按钮是否显示
+      uploadLoading: true,
     }
   },
   created() {
-    this.getScore();
+    const self = this;
+    self.getScore();
+
+    self.$axios.post('/api/evaluate-result', {
+      account: self.account
+    }).then(res => {
+      const data = res.data;
+      console.log(data)
+      if (data.status === 200 && data.result.length > 0) {
+        if (data.result[0].result === 'ing') {
+          self.getEvaluateResult();
+        }
+      } else {
+        console.error(data);
+      }
+    }).catch(err => console.error(err));
   },
   methods: {
+    scoreSortMethod(a, b) {
+      return new Date(b.time).getTime() - new Date(a.time).getTime();
+    },
     getScore() {
       const self = this;
 
@@ -127,26 +156,48 @@ export default {
     },
     submitUpload() {
       const self = this;
-      self.$refs.upload.submit()
+      self.$refs.upload.submit();
+    },
+    getEvaluateResult() {
+      const self = this;
+
+      const i = setInterval(() => {
+        self.$axios.post('/api/evaluate-result', {
+          account: self.account
+        }).then(response => {
+          const data = response.data;
+          if (data.status === 200 && data.result.length > 0) {
+            if (data.result[0].result === 'done') {
+              clearInterval(i);
+            }
+          } else if (data.result.length === 0) {
+            return;
+          } else {
+            console.error(data);
+            clearInterval(i);
+            return self.$message({
+              type: 'error',
+              message: data.message
+            });
+          }
+        }).catch(err => {
+          console.error(err);
+        });
+      }, 3000);
     },
     // data is response.data
     handleSuccess (data, file, fileList) {
       const self = this;
       
       if (data.status === 200) {
-        const loading = self.$loading({
-          lock: true,
-          text: '文件已上传成功，正在评分中……',
-          spinner: 'el-icon-loading',
-          background: 'rgba(0,0,0,0.7)'
-        });
+
+        self.getEvaluateResult();
 
         // 上传成功，送去评分
         self.$axios.post('/api/file-evaluate', data)
         .then(response => {
           const resData = response.data;
           if (resData.status === 200) {
-            loading.close();
             self.scoreDialogVisible = true;
 
             self.totalScore = resData.score;

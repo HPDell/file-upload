@@ -15,7 +15,7 @@
                 </el-card>
                 <el-card shadow="hover" style="height:252px;">
                     <div slot="header" class="clearfix">
-                        <span>科目二排行榜</span>
+                        <span>科目三排行榜</span>
                     </div>
                     <p style="margin:0 0 5px;" v-for="item in userRankSort" :key="item.id">
                         {{item.name}}

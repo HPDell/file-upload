@@ -51,15 +51,10 @@
             width="30%"
             center>
             <p class="score">{{ totalScore }}</p>
-            <table border="1" style="margin:auto;text-align:center;">
-                <tr>
-                    <th>分数1</th><th>分数2</th>
-                </tr>
-                <tr>
-                    <td>{{score1 === -1 ? 'Error' : score1}}</td>
-                    <td>{{score2 === -1 ? 'Error' : score2}}</td>
-                </tr>
-            </table>
+            <el-table :data="[{score1: score1, score2: score2}]">
+                <el-table-column label="2D部分得分" prop="score1" align="center"></el-table-column>
+                <el-table-column label="3D部分得分" prop="score2" align="center"></el-table-column>
+            </el-table>
             <span>Tip：若分数出现“Error”，说明该部分评分失败</span>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="handleScoreConfirm">确 定</el-button>
@@ -88,10 +83,10 @@ export default {
 			},
 			
 			lastScoreId: -1,
-            score1: 0,
-            score2: 0,
+            score1: 10,
+            score2: 30,
             totalScore: 0,
-            scoreDialogVisible: false,
+            scoreDialogVisible: true,
 
             scoreList: [],
             scoreMax: 0,
@@ -301,7 +296,7 @@ export default {
 }
 .score {
     text-align: center;
-    font-size: 24px;
+    font-size: 36px;
     color: red;
     font-weight: bold;
 }

@@ -2,7 +2,7 @@
     <div class="login-wrap" >
         <el-form class="form" ref="loginForm" :model="form" label-width="70px">
             <el-form-item label="账户">
-                <el-select style="width:300px;" v-model="form.account" filterable placeholder="账户">
+                <el-select style="width:300px;" allow-create v-model="form.account" filterable placeholder="账户">
                     <el-option
                         v-for="item in accountList"
                         :key="item.account"
@@ -20,7 +20,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="密码">
-                <el-input style="width:300px;" v-model="form.password" placeholder="密码" type="password"></el-input>
+                <el-input style="width:300px;" @keyup.native.enter="login()" v-model="form.password" placeholder="密码" type="password"></el-input>
             </el-form-item>
             <el-form-item v-if="isGtOk" label="完成验证">
                 <span id="gtModule"></span>
@@ -43,8 +43,8 @@ export default {
         return {
             i: 0,
             form: {
-                account: 'admin',
-                password: '123456'
+                account: '',
+                password: ''
             },
             isGtOk: false,
             captchaObj: {},

@@ -1,6 +1,6 @@
 <template>
     <div class="admin-wrap">
-        <v-head title="File Upload 后台管理系统"></v-head>
+        <v-head title="后台管理系统"></v-head>
         <v-sidebar></v-sidebar>
         <div class="content-box" :class="{'content-collapse': collapse}">
             <v-tags></v-tags>

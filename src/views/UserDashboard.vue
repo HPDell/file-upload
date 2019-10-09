@@ -132,7 +132,7 @@ export default {
 									message: '修改成功'
 								});
 
-								// self.form = {};
+								self.form = {};
 								self.dialogVisible = false;
 							} else {
 								console.error(data.message);
@@ -169,8 +169,8 @@ export default {
 	margin: 0;
 }
 .user-dashboard-header img {
+	width: auto;
 	height: 200px;
-	width: 200px;
 }
 .user-dashboard-header .header-wrap {
 	position: absolute;

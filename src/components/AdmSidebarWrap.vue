@@ -76,11 +76,11 @@ export default {
                     index: 'ad-files',
                     title: '文件管理'
                 },
-                {
-                    icon: 'el-icon-pie-chart',
-                    index: 'ad-stats',
-                    title: '数据统计'
-                }
+                // {
+                //     icon: 'el-icon-pie-chart',
+                //     index: 'ad-stats',
+                //     title: '数据统计'
+                // }
             ]
         };
     },

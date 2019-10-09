@@ -10,12 +10,12 @@
                             <div>系统管理员</div>
                         </div>
                     </div>
-                    <div class="user-info-list">上次登录时间：<span>{{ lastLoginTime }}</span></div>
-                    <div class="user-info-list">上次登录地点：<span>武汉</span></div>
+                    <div class="user-info-list">登录时间：<span>{{ lastLoginTime }}</span></div>
+                    <div class="user-info-list">登录地点：<span>北京</span></div>
                 </el-card>
                 <el-card shadow="hover" style="height:252px;">
                     <div slot="header" class="clearfix">
-                        <span>排行榜</span>
+                        <span>科目一排行榜</span>
                     </div>
                     <p style="margin:0 0 5px;" v-for="item in userRankSort" :key="item.id">
                         {{item.name}}

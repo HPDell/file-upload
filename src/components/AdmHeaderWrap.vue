@@ -15,7 +15,7 @@
                     </el-tooltip>
                 </div>
                 <!-- 消息中心 -->
-                <div class="btn-bell">
+                <!-- <div class="btn-bell">
                     <el-tooltip
                         effect="dark"
                         :content="message?`有${message}条未读消息`:`消息中心`"
@@ -26,7 +26,7 @@
                         </router-link>
                     </el-tooltip>
                     <span class="btn-bell-badge" v-if="message"></span>
-                </div>
+                </div> -->
                 <!-- 用户头像 -->
                 <div class="user-avator">
                     <img src="../assets/img/img.jpg" />
@@ -38,14 +38,33 @@
                         <i class="el-icon-caret-bottom"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                        <a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
+                        <!-- <a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
                             <el-dropdown-item>项目仓库</el-dropdown-item>
-                        </a>
+                        </a> -->
+                        <el-dropdown-item command="alterAccount" >修改账户</el-dropdown-item>
                         <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
         </div>
+
+        <!-- 修改账户对话框 -->
+        <el-dialog :visible.sync="alterAccountVisible" width="400px" title="管理员账户更改">
+            <el-form :model="accountForm" label-width="100px" ref="accountForm" :rules="rules">
+                <el-form-item label="用户名" prop="name" @keydown.native.enter="submitAlter">
+                    <el-input v-model="accountForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="新密码" prop="newPwd" @keydown.native.enter="submitAlter">
+                    <el-input v-model="accountForm.newPwd" :type="pwdShow.new ? 'plain' : 'password'">
+                        <i class="el-icon-view" slot="suffix" @click="pwdShow.new=!pwdShow.new"></i>
+                    </el-input>
+                </el-form-item>
+            </el-form>
+			<div class="form-bottom">
+				<el-button @click="accountForm={};alterAccountVisible=false;">取消</el-button>
+				<el-button type="primary" @click="submitAlter">确认修改</el-button>
+			</div>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -56,7 +75,24 @@ export default {
             collapse: false,
             fullscreen: false,
             name: '',
-            message: 2
+            message: 2,
+
+            alterAccountVisible: false,
+            accountForm: {
+                name: '',
+                newPwd: ''
+            },
+            pwdShow: {
+                new: false,
+            },
+            rules: {
+                name: [
+                    {required: true, message: '请输入用户名', trigger: 'blur'}
+                ],
+                newPwd: [
+                    {required: true, message: '请输入新密码', trigger: 'blur'}
+                ]
+            }
         };
     },
     props: {
@@ -72,11 +108,50 @@ export default {
         }
     },
     methods: {
+        submitAlter() {
+            const self = this;
+            self.$refs.accountForm.validate()
+            .then(async valid => {
+                if (valid) {
+                    self.accountForm.account = await localStorage.getItem('user_account');
+                    
+                    self.$axios.post('/api/admin/alter-account', self.accountForm)
+                    .then(response => {
+                        const data = response.data;
+                        if (data.status === 200) {
+                            self.alterAccountVisible = false;
+
+                            this.name = self.accountForm.name;
+                            localStorage.setItem('user_name', self.accountForm.name);
+
+                            self.$message({
+                                type: 'success',
+                                message: '修改成功'
+                            });
+
+                            self.accountForm = {};
+
+                            // 退出登录
+                            sessionStorage.clear();
+                            this.$router.push('/login');
+                        } else {
+                            self.$message({
+                                type: 'error',
+                                message: '[' + data.status + ']' + data.message
+                            });
+                        }
+                    }).catch(err => console.error(err));
+                }
+            }).catch(err => console.error(err));
+        },
         // 用户名下拉菜单选择事件
         handleCommand(command) {
             if (command == 'loginout') {
                 sessionStorage.clear();
                 this.$router.push('/login');
+            } else if (command === 'alterAccount') {
+                this.accountForm.name = this.username;
+                this.alterAccountVisible = true;
             }
         },
         // 侧边栏折叠

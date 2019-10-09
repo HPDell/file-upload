@@ -1,6 +1,6 @@
 <template>
     <div class="user-rank-wrap" :style="{width: width}">
-        <h2>科目三排行榜</h2>
+        <h2>科目四排行榜</h2>
         
         <img src="../assets/img/stage.png">
 

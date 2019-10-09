@@ -51,7 +51,7 @@
             width="30%"
             center>
             <p class="score">{{ totalScore }}</p>
-            <el-table :data="[{score1: score1, score2: score2}]">
+            <el-table :data="[{score1: score1===-1?'Error':score1, score2: score2===-1?'Error':score2}]">
                 <el-table-column label="2D部分得分" prop="score1" align="center"></el-table-column>
                 <el-table-column label="3D部分得分" prop="score2" align="center"></el-table-column>
             </el-table>
@@ -83,10 +83,10 @@ export default {
 			},
 			
 			lastScoreId: -1,
-            score1: 10,
-            score2: 30,
+            score1: 0,
+            score2: 0,
             totalScore: 0,
-            scoreDialogVisible: true,
+            scoreDialogVisible: false,
 
             scoreList: [],
             scoreMax: 0,

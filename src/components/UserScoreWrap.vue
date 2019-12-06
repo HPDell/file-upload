@@ -108,6 +108,8 @@ export default {
 					// 有待显示的计算结果
 					if (result.process === 'show') {
 
+                        console.log(result.score1 === -1)
+
 						self.lastScoreId = result.id;
 						self.score1 = result.score1 === -1 ? 'Error' : result.score1;
 						self.score2 = result.score2 === -1 ? 'Error' : result.score2;
@@ -187,6 +189,8 @@ export default {
 							// 有待显示的计算结果
 							if (result.process === 'show') {
 
+                                console.log(result.score1 === -1)
+                                
 								self.lastScoreId = result.id;
 								self.score1 = result.score1 === -1 ? 'Error' : result.score1;
 								self.score2 = result.score2 === -1 ? 'Error' : result.score2;

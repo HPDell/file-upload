@@ -1,19 +1,30 @@
 <template>
     <div class="user-rank-wrap" :style="{width: width}">
-        <h2>科目一排行榜</h2>
+        <h2>地物目标要素变化检测与分类</h2>
         
         <img src="../assets/img/stage.png">
 
-        <el-table :data="rankList" height="610px" id="user-rank-table">
-            <el-table-column label="排名" width="135" align="right">
+        <el-table :data="rankList" height="610px" id="user-rank-table" fit>
+            <el-table-column label="排名" width="48px" align="right">
                 <template slot-scope="scope">
                     <span :class="scope.row.enhance ? 'enhance' : ''">{{scope.$index+1}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="得分" width="200" align="center">
+            <el-table-column label="地物分类" align="center">
                 <template slot-scope="scope">
-                    <span :class="scope.row.enhance ? 'enhance' : ''">{{scope.row.score}}</span>
-                </template></el-table-column>
+                    <span :class="scope.row.enhance ? 'enhance' : ''">{{scope.row.score1.toFixed(2)}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="变化检测" align="center">
+                <template slot-scope="scope">
+                    <span :class="scope.row.enhance ? 'enhance' : ''">{{scope.row.score2.toFixed(2)}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="总分" align="center">
+                <template slot-scope="scope">
+                    <span :class="scope.row.enhance ? 'enhance' : ''">{{scope.row.score_all.toFixed(2)}}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="队伍" align="center">
                 <template slot-scope="scope">
                     <span :class="scope.row.enhance ? 'enhance' : ''">{{scope.row.user}}</span>

@@ -1,6 +1,6 @@
 <template>
     <div class="user-rank-wrap" :style="{width: width}">
-        <h2>科目二排行榜</h2>
+        <h2>基于卫星遥感资料的云智能识别</h2>
         
         <img src="../assets/img/stage.png">
 
@@ -12,7 +12,7 @@
             </el-table-column>
             <el-table-column label="得分" width="200" align="center">
                 <template slot-scope="scope">
-                    <span :class="scope.row.enhance ? 'enhance' : ''">{{scope.row.score}}</span>
+                    <span :class="scope.row.enhance ? 'enhance' : ''">{{scope.row.score_all}}</span>
                 </template></el-table-column>
             <el-table-column label="队伍" align="center">
                 <template slot-scope="scope">

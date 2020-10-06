@@ -52,8 +52,8 @@
             center>
             <p class="score">{{ totalScore }}</p>
             <el-table :data="[{score1: score1===-1?'Error':score1, score2: score2===-1?'Error':score2}]">
-                <el-table-column label="2D部分得分" prop="score1" align="center"></el-table-column>
-                <el-table-column label="3D部分得分" prop="score2" align="center"></el-table-column>
+                <el-table-column label="地物分类得分" prop="score1" align="center"></el-table-column>
+                <el-table-column label="变化检测得分" prop="score2" align="center"></el-table-column>
             </el-table>
             <span>Tip：若分数出现“Error”，说明该部分评分失败</span>
             <span slot="footer" class="dialog-footer">
